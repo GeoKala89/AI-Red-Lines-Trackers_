@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Red-Line: Political Manipulation Risk – Persuasion Uplift</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.2.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <style>
+        .chart-container {
+            width: 800px; /* Adjust size as needed */
+            margin: 50px auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chart-container">
+    <canvas id="redLineChart"></canvas>
+</div>
+
+<script>
+    // --- Data Setup ---
+    const CATEGORY_LABEL = 'Political Manipulation Risk – Persuasion Uplift';
+    const RED_LINE_THRESHOLD = 3.0; // 3x Persuasion Uplift
+    const CURRENT_EVIDENCE = 2.0;    // Current measured or evidenced uplift value (2.0x)
+    const MAX_SCALE = 4.0;          // Max scale for the track (0x to 4x)
+
+    // Zone Definitions for Stacked Bar:
+    const ORANGE_BAR_FILL = CURRENT_EVIDENCE;       // 2.0 (The actual filled portion)
+    const TRANSPARENT_GAP = MAX_SCALE - CURRENT_EVIDENCE; // 2.0 (The remaining gap to fill the chart width)
+
+    const chartData = {
+        labels: [CATEGORY_LABEL],
+        datasets: [
+            {
+                // Series 1: The ORANGE FILLED Bar (0x to 2.0x)
+                label: 'Current Evidence Uplift',
+                data: [ORANGE_BAR_FILL], 
+                backgroundColor: 'rgba(255, 165, 0, 0.8)', // Orange fill
+                type: 'bar',
+                stack: 'barStack',
+                barThickness: 50,
+            },
+            {
+                // Series 2: The TRANSPARENT Gap (2.0x to 4.0x)
+                label: 'Unachieved Gap',
+                data: [TRANSPARENT_GAP], 
+                backgroundColor: 'rgba(0, 0, 0, 0)', // Fully Transparent fill
+                borderColor: 'rgba(0, 0, 0, 0.1)',   // Light grey border for clarity
+                borderWidth: 1,
+                type: 'bar',
+                stack: 'barStack', // Must share the same stack name
+                barThickness: 50,
+            }
+        ]
+    };
+
+    // --- Chart Configuration ---
+    const config = {
+        type: 'bar', 
+        data: chartData,
+        options: {
+            indexAxis: 'y', // Horizontal orientation
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    min: 0,
+                    max: MAX_SCALE, // Scale set to 4.0
+                    stacked: true, 
+                    ticks: {
+                        callback: function(value) {
+                            return value.toFixed(1) + '×'; // Format as Xx uplift
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Persuasion Uplift (×)'
+                    }
+                },
+                y: {
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'AI Red-Line: Political Manipulation Risk'
+                },
+                legend: {
+                    display: false 
+                },
+                // Annotation Plugin for the Vertical Red Line at 3.0x
+                annotation: {
+                    annotations: {
+                        redLine: {
+                            type: 'line',
+                            mode: 'vertical',
+                            scaleID: 'x',
+                            value: RED_LINE_THRESHOLD, // Set line at 3.0
+                            borderColor: 'red',
+                            borderWidth: 4,
+                            label: {
+                                enabled: true,
+                                content: '3.0×', // Display the threshold text
+                                position: 'end', // Places the label below the bar
+                                backgroundColor: 'transparent', 
+                                borderColor: 'transparent',      
+                                color: 'red', 
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    // --- Initialize the Chart ---
+    window.onload = function() {
+        const ctx = document.getElementById('redLineChart').getContext('2d');
+        new Chart(ctx, config);
+    };
+</script>
+
+</body>
+</html>
