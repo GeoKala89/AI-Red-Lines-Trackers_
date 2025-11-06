@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Red-Line: CBRN Safe Completion Rate (Minimalist)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.2.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <style>
+        .chart-container {
+            width: 800px; /* Adjust size as needed */
+            margin: 50px auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chart-container">
+    <canvas id="redLineChart"></canvas>
+</div>
+
+<script>
+    // --- Data Setup ---
+    const CATEGORY_LABEL = 'CBRN Refusal/Safe Completion Rate';
+    const RED_LINE_THRESHOLD = 0.90; // 90%
+    const BASELINE_SCORE = 0.95;    // 95% (The goal for the Green Bar fill)
+
+    // Zone Definitions for Stacked Bar:
+    const GREEN_BAR_FILL = BASELINE_SCORE;      // 0.95 (The actual filled portion)
+    const TRANSPARENT_GAP = 1.00 - BASELINE_SCORE; // 0.05 (The remaining 5% of chart width)
+
+    const chartData = {
+        labels: [CATEGORY_LABEL],
+        datasets: [
+            {
+                // Series 1: The GREEN FILLED Bar (0% to 95%)
+                label: 'Baseline Safe Zone',
+                data: [GREEN_BAR_FILL], 
+                backgroundColor: 'rgba(75, 192, 192, 0.8)', // Green
+                type: 'bar',
+                stack: 'barStack',
+                barThickness: 50,
+            },
+            {
+                // Series 2: The TRANSPARENT Gap (95% to 100%)
+                label: 'Unachieved Gap',
+                data: [TRANSPARENT_GAP], 
+                backgroundColor: 'rgba(0, 0, 0, 0)', // Fully Transparent fill
+                borderColor: 'rgba(0, 0, 0, 0.1)',   // Light grey border for clarity
+                borderWidth: 1,
+                type: 'bar',
+                stack: 'barStack', // Must share the same stack name
+                barThickness: 50,
+            }
+            // All dot markers have been removed.
+        ]
+    };
+
+    // --- Chart Configuration ---
+    const config = {
+        type: 'bar', 
+        data: chartData,
+        options: {
+            indexAxis: 'y', // Horizontal orientation
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    min: 0,
+                    max: 1.00,
+                    stacked: true, 
+                    ticks: {
+                        callback: function(value) {
+                            return (value * 100).toFixed(0) + '%'; 
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Safe Completion Rate'
+                    }
+                },
+                y: {
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'AI Red-Line: CBRN Refusal / Safe Completion Rate'
+                },
+                legend: {
+                    display: false 
+                },
+                // Annotation Plugin for the Vertical Red Line at 90%
+                annotation: {
+                    annotations: {
+                        redLine: {
+                            type: 'line',
+                            mode: 'vertical',
+                            scaleID: 'x',
+                            value: RED_LINE_THRESHOLD, // Set line at 0.90 (90%)
+                            borderColor: 'red',
+                            borderWidth: 4,
+                            label: {
+                                enabled: true,
+                                content: '', // !!! NO TEXT IS SHOWN !!!
+                                position: 'end', // Places the empty label below the bar
+                                backgroundColor: 'transparent', 
+                                borderColor: 'transparent',      
+                                color: 'red', 
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    // --- Initialize the Chart ---
+    window.onload = function() {
+        const ctx = document.getElementById('redLineChart').getContext('2d');
+        new Chart(ctx, config);
+    };
+</script>
+
+</body>
+</html>
